@@ -12,7 +12,6 @@ import { asynchandler } from "../utils/async-handler.js";
 */
 
 export const healthController = asynchandler(async (req, res, next) => {
-  
   const {email} = req.body
   res
     .status(200)

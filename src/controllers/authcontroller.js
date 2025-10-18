@@ -28,7 +28,6 @@ export const Rgisteruser = asynchandler(async (req, res) => {
   const exisusre = User.findOne({
         email
     })
-    
 
     if(exisusre) throw new ApiError(409, {message: "user exist already !"}, [])
 
