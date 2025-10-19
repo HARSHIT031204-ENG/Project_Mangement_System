@@ -68,12 +68,3 @@ export const Rgisteruser = asynchandler(async (req, res) => {
 
     return res.status(200).json( new ApiResponse(200, {user : createdUser}, "user registerd successfull as well as verification successfull"))
 })
-
-
-
-// export const register = asynchandler(async (req, res) => {
-//     const { email } = req.body
-//     res.send({
-//         email: "jbwkjvbwkj"
-//     })
-// })
