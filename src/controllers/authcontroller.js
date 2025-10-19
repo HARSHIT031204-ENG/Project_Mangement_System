@@ -29,7 +29,6 @@ export const Rgisteruser = asynchandler(async (req, res) => {
         email
     })
     
-
     if(exisusre) throw new ApiError(409, {message: "user exist already !"}, [])
 
     const user = await User.create({
