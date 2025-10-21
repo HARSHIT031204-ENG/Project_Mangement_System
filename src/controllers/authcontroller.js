@@ -58,6 +58,7 @@ export const Rgisteruser = asynchandler(async (req, res) => {
         )
     })
 
+    
    const createdUser =  await User
         .findById(user._id)
         .select("-password -refreshtoken -emailverificationToken -emailverificationexpiry")
