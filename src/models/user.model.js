@@ -18,7 +18,6 @@ const userSchema = new Schema(
     },
     name: {
       type: String,
-      required: [true, "name is required"],
       index: true,
       lowercase: true,
       trim: true,
@@ -92,11 +91,20 @@ userSchema.methods.generate_temporaray_token = function () {
   return {unhashedtoken, hashedtoken, tokenexpiry}
 
 }
-userSchema.methods.ispasswordcorrect = async function (password) {
+
+userSchema.methods.isPasswordCorrect = async function (password) {
+  // console.log("this", typeof this.password);
+  // console.log("this not", typeof password);
+  // const answer = await bcrypt.compare(password, this.password);
+  // console.log("ans", answer);
+  
+
+  // password = await bcrypt.hash(password, 10)
   return await bcrypt.compare(password, this.password);
 };
+
 userSchema.pre("save", async function (next) {
-  if (!this.isModified(this.password)) return next();
+  if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
