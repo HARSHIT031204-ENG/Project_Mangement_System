@@ -5,14 +5,21 @@ const uservalid_schema = z.object({
     (val) => (typeof val == String ? val.trim().toLowerCase() : val),
     z
       .string({ message: "enter in a string formatt." })
-      .min(3, { message: "atleast three character ,ust be exist " })
+      .min(3, { message: "atleast three character must be exist " })
       .max(20, { message: " not more than 20 character " }),
-  ),
+  ).optional(),
 
   email: z.preprocess(
-    (val) => (typeof val == String ? val.trim().toLowerCase() : val),
+    (val) => (typeof val === "string" ? val.trim().toLowerCase() : val),
     z.email({ message: "email not valid !" }),
-  ),
+  ).optional(),
+
+  password: z.preprocess(
+    (val) => (typeof val === "string" ? val.trim() : val),
+   z.string({message : "hbkbwkb"})
+   .min(3, {message : "atlest three charcater "})
+    .max(20, {message : "bkjrwbvkjab"}),
+  ).optional(),
 });
 
 export const validation = (req, res, next) => {
@@ -25,6 +32,22 @@ export const validation = (req, res, next) => {
   if (!result.success) {
     console.log(result.error.format());
     throw new ApiError(400, "Validation Error.", result.error.format());
+  }
+
+  req.validation = result.data;
+  next();
+};
+
+export const loginvalidation = (req, res, next) => {
+  const { email, password } = req.body;
+  // console.log("login validation ", email, password);
+
+  const result = uservalid_schema.safeParse({ email, password });
+  console.log("result", result);
+
+  if (!result.success) {
+    console.log(result.error.format());
+    throw new ApiError(404, "invalid credenetials!");
   }
 
   req.validation = result.data;
