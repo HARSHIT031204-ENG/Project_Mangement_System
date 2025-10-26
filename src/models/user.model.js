@@ -93,13 +93,6 @@ userSchema.methods.generate_temporaray_token = function () {
 }
 
 userSchema.methods.isPasswordCorrect = async function (password) {
-  // console.log("this", typeof this.password);
-  // console.log("this not", typeof password);
-  // const answer = await bcrypt.compare(password, this.password);
-  // console.log("ans", answer);
-  
-
-  // password = await bcrypt.hash(password, 10)
   return await bcrypt.compare(password, this.password);
 };
 
