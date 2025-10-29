@@ -3,9 +3,8 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asynchandler } from "../utils/async-handler.js";
-import SendMail from "../utils/mail.js";
-import EmailverificationMailgen from "../utils/mail.js";
-
+import { EmailverificationMailgen, SendMail } from "../utils/mail.js";
+import crypto from "crypto"
 const generate_Access_Refresh_Token = async (usreId) => {
   try {
     const user = await User.findOne(usreId);
@@ -177,17 +176,17 @@ export const verifyemail = asynchandler(async (req, res) => {
 
   const usre = await User.findOne({
     emailverificationToken: hashedtoken,
-    emailverificationexpiry: { gt: Date.now() },
+    emailverificationexpiry: { $gt: Date.now() },
   });
 
   if (!usre) {
     throw new ApiError(400, "emailverification not valid!");
   }
 
-  ((usre.emailverificationexpiry = undefined),
-    (usre.emailverificationToken = undefined),
-    (usre.isEmailverified = true));
-  await usre.validate({ validateBeforeSave: false });
+ usre.emailverificationexpiry = undefined
+    usre.emailverificationToken = undefined
+    usre.isEmailverified = true
+  await usre.save({ validateBeforeSave: false });
 
   return res
     .status(200)
@@ -269,4 +268,87 @@ export const newrfereshtoken = asynchandler(async (req, res) => {
   }
 });
 
-// export const verifyemail = asynchandler(async(req, res) => {})
+export const forgotpasswordRequest = asynchandler(async(req, res) => {
+  const {email} = req.body
+
+  const usre = await User.findOne({email})
+
+  if(!usre) {
+    throw new ApiError(404, "Usre is invalid!", [])
+  }
+
+
+  const {unhashedtoken, hashedtoken, tokenexpiry} = usre.generate_temporaray_token()
+
+  usre.forgotPasswordToken = hashedtoken
+  usre.forgotPasswordexpiry = tokenexpiry
+
+  await usre.save({validateBeforeSave : false})
+
+  
+  await SendMail(
+    {email: usre?.email,
+    subject: "for Reset your password! click on below given url ",
+    mailgenContent: EmailverificationMailgen(
+      usre.username,
+      `${process.env.FORGOT_PASSWORD_URL}/${unhashedtoken} click this url...`,
+    )}
+  )
+
+  return res.status(200).json(
+    new ApiResponse(200, "Forgot password requste succeesfully done!")
+  )
+})
+
+export const Resetpassword = asynchandler(async(req, res) => {
+  const {resettoken} = req.params
+  const {password: newpassword} = req.body
+
+  let hashedtoken = crypto
+                      .create("sha256")
+                      .update(resettoken)
+                      .digest("hex")
+
+  const user =  await User.findOne({
+      forgotPasswordToken : hashedtoken,
+      forgotPasswordexpiry : {$gt: Date.now()}
+    })
+
+  
+    if(!user) {
+      throw ApiError(401, "Unauthorized person !")
+    }
+
+    user.forgotPasswordToken = undefined
+    user.forgotPasswordexpiry = undefined
+    user.password = newpassword
+
+    await user.save({validateBeforeSave : false})
+
+    res.status(200).json(
+      new ApiResponse(200, "reset password successfully!")
+    )
+
+})
+
+export const changeCurrentPaswword = asynchandler(async(req, res) => {
+  const {currentpassword, newpassword} = req.body
+
+  const user = await User.findOne(req.user._id)
+  if(!user){
+    throw new ApiError(404, "usre not found !")
+  }
+
+  const passwordcorrect = await user.isPasswordCorrect(currentpassword)
+  if(!passwordcorrect){
+    throw new ApiError(405, "password is invalid!")
+  }
+
+  user.password = newpassword
+
+  await user.save({validateBeforeSave : false})
+
+  res.status(200).json(
+    200, "passwodr changed successfully!"
+  )
+})
