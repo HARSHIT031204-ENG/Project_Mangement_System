@@ -8,7 +8,7 @@ const SendMail = async function(options) {
         theme : 'default',
         product : {
             name : 'Task Manager',
-            link : 'http;//taskmananegrlink.com'
+            link : 'http://taskmananegrlink.com'
         },
     })
 
@@ -41,21 +41,21 @@ const SendMail = async function(options) {
     }
 
 }
-const EmailverificationMailgen = function(username, emailverificationurl) {
+const EmailverificationMailgen = (username, emailverificationurl) => {
     return  {
         body: {
-        name: username,
-        intro: 'Welcome to Our Application! We\'re very excited to have you on board.',
-        action: {
-            instructions: 'To verify your mail please click on the following button',
-            button: {
-                color: '#22BC66',
-                text: 'verify your email',
-                link: emailverificationurl
-            }
-        },
-        outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.'
-    }
+            name: username,
+            intro: 'Welcome to Our Application! We\'re very excited to have you on board.',
+            action: {
+                instructions: 'To verify your mail please click on the following button',
+                button: {
+                    color: '#22BC66',
+                    text: 'verify your email',
+                    link: emailverificationurl
+                }
+            },
+            outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.'
+        }
     }
 }
 const ForgotPasswordMailgen = function(username, resetpasswordurl) {
@@ -76,4 +76,4 @@ const ForgotPasswordMailgen = function(username, resetpasswordurl) {
     }
 }
 
-export default {EmailverificationMailgen, ForgotPasswordMailgen, SendMail}
+export  {EmailverificationMailgen, ForgotPasswordMailgen, SendMail}
