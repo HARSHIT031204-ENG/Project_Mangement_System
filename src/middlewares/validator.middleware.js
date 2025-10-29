@@ -24,7 +24,7 @@ const uservalid_schema = z.object({
 
 export const validation = (req, res, next) => {
   const { email, username } = req.body;
-  // console.log(email);
+  console.log("validation : ",email);
 
   const result = uservalid_schema.safeParse({ username, email });
   // console.log("Result data: ", result);
