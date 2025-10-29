@@ -3,7 +3,7 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asynchandler } from "../utils/async-handler.js";
-import { EmailverificationMailgen, SendMail } from "../utils/mail.js";
+import { EmailverificationMailgen, ForgotPasswordMailgen, SendMail } from "../utils/mail.js";
 import crypto from "crypto"
 const generate_Access_Refresh_Token = async (usreId) => {
   try {
@@ -289,7 +289,7 @@ export const forgotpasswordRequest = asynchandler(async(req, res) => {
   await SendMail(
     {email: usre?.email,
     subject: "for Reset your password! click on below given url ",
-    mailgenContent: EmailverificationMailgen(
+    mailgenContent: ForgotPasswordMailgen(
       usre.username,
       `${process.env.FORGOT_PASSWORD_URL}/${unhashedtoken} click this url...`,
     )}
@@ -305,7 +305,7 @@ export const Resetpassword = asynchandler(async(req, res) => {
   const {password: newpassword} = req.body
 
   let hashedtoken = crypto
-                      .create("sha256")
+                      .createHash("sha256")
                       .update(resettoken)
                       .digest("hex")
 
@@ -349,6 +349,6 @@ export const changeCurrentPaswword = asynchandler(async(req, res) => {
   await user.save({validateBeforeSave : false})
 
   res.status(200).json(
-    200, "passwodr changed successfully!"
+    new ApiResponse(200, [], "password changed successfully!")
   )
 })
