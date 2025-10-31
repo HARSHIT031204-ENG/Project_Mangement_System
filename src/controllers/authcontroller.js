@@ -23,7 +23,6 @@ const generate_Access_Refresh_Token = async (usreId) => {
   }
 };
 
-
 export const Rgisteruser = asynchandler(async (req, res) => {
   const { email, username } = req.validation;
   const { password, role } = req.body;
